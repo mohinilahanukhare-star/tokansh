@@ -57,7 +57,7 @@ export function scenarioEvents(phase:Phase):EventPreview[]{
   [5,'LENDER','RELEASE','Full repayment and collateral release scenario selected']
  ];
  return entries.filter(x=>x[0]<=i).map((x,n)=>({id:'PREVIEW-'+String(n+1).padStart(3,'0'),
-  actor:x[1],kind:x[2],description:x[3],appStatus:'PREVIEW_ONLY',ledger:ledgerUnavailable,time:'Illustrative'})).reverse();
+  actor:x[1],kind:x[2],description:x[3],appStatus:'PREVIEW_ONLY' as const,ledger:ledgerUnavailable,time:'Illustrative'})).reverse();
 }
 export function scenarioEntitlement(phase:Phase) {
  const h=scenarioHoldings(phase);
