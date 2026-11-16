@@ -2,7 +2,7 @@ import {AlertCircle,CheckCircle2,Clock3,Info,ShieldAlert} from 'lucide-react';
 import {cn} from '../../utils/cn';
 export type ViewStatus='UNAVAILABLE'|'PREVIEW_ONLY'|'DRAFT'|'PENDING'|'PROCESSING'|'SUBMITTED'|'COMMITTED'|'FAILED'|'UNKNOWN'|'RECONCILIATION_REQUIRED'|'SIMULATED'|'APPROVED'|'REJECTED'|'ISSUED';
 export function Status({value}:{value:ViewStatus|string}){
- const good=value==='COMMITTED'||value==='APPROVED';
+ const good=value==='COMMITTED';
  const error=['FAILED','REJECTED','RECONCILIATION_REQUIRED','UNAVAILABLE'].includes(value);
  const warn=['PENDING','PROCESSING','SUBMITTED','UNKNOWN','ISSUED'].includes(value);
  const Icon=good?CheckCircle2:error?ShieldAlert:warn?Clock3:Info;
