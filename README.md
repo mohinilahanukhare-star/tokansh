@@ -99,3 +99,13 @@ Import `mohinilahanukhare-star/tokansh` into Vercel:
 ## Frontend boundaries
 
 Only frontend code and frontend documentation belong here. No Python microservices, Go chaincode, DRUNIX peers, database credentials or actual investment processing. For real functionality, backend owners must implement the validated API contract.
+
+## Free public deployment (GitHub Pages)
+
+This public frontend repository can be hosted on GitHub Pages at `https://mohinilahanukhare-star.github.io/tokansh/` without running a Python server.
+
+**One-time repository owner setup:** open [Settings → Pages](https://github.com/mohinilahanukhare-star/tokansh/settings/pages), then under **Build and deployment → Source** select **GitHub Actions**. This GitHub setting cannot be enabled from the frontend source repository alone.
+
+After choosing GitHub Actions, visit [Actions](https://github.com/mohinilahanukhare-star/tokansh/actions/workflows/deploy-pages.yml), select **Run workflow** on the `main` branch or rerun the previous failed job. The workflow installs dependencies, runs seven mock-engine tests, builds Vite with the `/tokansh/` base path and publishes `dist` through the official GitHub Pages actions.
+
+The page is a public **synthetic hackathon UI**: account switching, financial figures, mock payments and localStorage-based trade/pledge simulations are not authenticated bank or DRUNIX operations. Never enter real customer data or credentials into the demo.
