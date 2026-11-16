@@ -117,7 +117,7 @@ export default function App(){
   function signIn(next:Role){setRole(next);try{sessionStorage.setItem('tokansh-role',next);}catch{/* storage optional */}navigate(next==='ASSET_MANAGER'?'manager':next==='LENDER'?'lender':'dashboard');}
   function logOut(){setRole(null);try{sessionStorage.removeItem('tokansh-role');}catch{/* optional */}window.location.hash='';}
   function changeState(action:(s:DemoState)=>DemoState,success:string){
-    try{setState(s=>action(s));setNotice({message:success,kind:'success'});}
+    try{const next=action(state);setState(next);setNotice({message:success,kind:'success'});}
     catch(e){setNotice({message:e instanceof Error?e.message:'The action could not be completed',kind:'error'});}
   }
   function doTrade(){
