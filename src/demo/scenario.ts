@@ -21,7 +21,7 @@ export const propertyImage='https://images.unsplash.com/photo-1497366811353-6870
 export const sample={
   id:'TECHPARK-ONE',name:'TechPark One',location:'Bengaluru, Karnataka',type:'Commercial office',
   valuation:'1000000000',approvedSupply:100000,unitPrice:'10000',issuer:'Meera · Demo issuer',
-  currency:'INR',recordDate:'2026-11-15',distribution:'1000000',loan:'1200000',ltv:60,
+  currency:'INR',recordDate:'2026-11-20',distribution:'1000000',loan:'1200000',ltv:60,
   distributionPeriod:'November 2026'
 };
 export function inr(value:string|number,short=false):string {
