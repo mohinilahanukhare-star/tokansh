@@ -156,6 +156,23 @@ export function retryTrade(state: DemoState, id: string): DemoState {
   withEvent(s,'TRADE',`Retry succeeded for ${id}; ownership updated once`,'COMMITTED','Investor');
   return s;
 }
+export function transferAnsh(state: DemoState, units: number, recipientId: string): DemoState {
+  const s = structuredClone(state);
+  const recipient = recipientId.trim();
+  if (!recipient || recipient.length < 4) throw new Error('Enter a valid recipient demo account ID.');
+  if (recipient === 'usr_investor_01' || recipient === 'Aarav') throw new Error('Cannot transfer to the same investor.');
+  if (!Number.isSafeInteger(units) || units <= 0) throw new Error('Enter a valid positive whole-number quantity.');
+  if (units > availableUnits(s)) throw new Error('Transfer blocked: pledged or unavailable ANSH units cannot be sent.');
+  s.ownedUnits -= units;
+  const item: Trade = {
+    id: uid('transfer'), side: 'SELL', assetId: 'techpark_one', units, amount: 0,
+    status: 'COMMITTED', payment: 'NOT_REQUIRED', time: timestamp(),
+    detail: 'Synthetic direct transfer to ' + recipient
+  };
+  s.trades.unshift(item);
+  withEvent(s,'TRANSFER',units + ' ANSH transferred to ' + recipient + ' (synthetic)','COMMITTED','Investor');
+  return s;
+}
 export function requestPledge(state: DemoState, units: number): DemoState {
   const s = structuredClone(state);
   if (!Number.isSafeInteger(units) || units <= 0 || units > availableUnits(s)) throw new Error('Requested collateral exceeds available unpledged ANSH units.');
