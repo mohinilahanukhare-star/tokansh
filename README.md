@@ -1,41 +1,34 @@
-# TokANSH — DRUNIX Hackathon 2026
+# TokANSH — UI Frontend Only
 
 **Unlocking Real Estate, One Ansh at a Time.**
 
-A fractional real-estate lifecycle prototype with investor, asset manager and lender experiences.
+This repository is exclusively for the **React + TypeScript + Vite frontend** for the TokANSH DRUNIX Hackathon MVP. The Python backend microservices and DRUNIX network are separately owned and maintained; they must **not** be committed to this repository.
+
+## Planned MVP screens
+1. Login with demo roles
+2. Investor dashboard
+3. Explore properties and details
+4. Portfolio: ANSH plus separately labeled synthetic REIT holdings
+5. Trading and transfer, including failure/retry and settlement states
+6. Collateral and loans
+7. Asset Manager: issuance and distributions
+8. Lender dashboard: decisions and authorized release
+9. Transactions and audit trail
+10. Intelligence scenarios (optional)
+
+## Frontend architecture
+
+- React, TypeScript, Vite
+- Role-aware routing, shared UI components and typed API client
+- Deterministic **mock API adapter** during development
+- Production API adapter for separately supplied Python REST services
+- API base URL configured with `VITE_API_BASE_URL`
+- No direct browser access to DRUNIX peers, keys, chaincode or certificates
 
 ## Status
 
-The first runnable **synthetic demo** is packaged separately as `TokANSH_Runnable_Demo_App.zip` in the ChatGPT conversation. This GitHub branch is being prepared for source publication.
+The React frontend has **not been implemented yet** in this branch. Earlier Python-served demo files were a separate exploratory prototype and are not part of this frontend repository.
 
-The demo uses Python standard-library HTTP APIs and dependency-free HTML/CSS/JavaScript. It is **not** the proposed React/TypeScript production frontend, and it **does not connect to a live DRUNIX network**.
+## Integration rules
 
-## MVP scope
-
-1. Demo login and role-based access
-2. Investor dashboard
-3. Explore properties and property detail
-4. ANSH and external synthetic REIT portfolio
-5. Trade, payment failure/retry and settlement
-6. Collateral and loans
-7. Asset-manager issuance and distributions
-8. Lender approval and release
-9. Transactions and audit
-10. Optional intelligence scenarios
-
-## Architecture
-
-Browser UI -> Python API -> synthetic state service (to be replaced by production microservices and DRUNIX integration).
-
-The demo must **not** be used for actual investments, loan disbursement or property transfers. Values, payment events and REIT holdings are synthetic.
-
-## Next steps
-
-- Commit tested application files from the runnable package.
-- Validate backend API contracts and DRUNIX integration points.
-- Add CI smoke tests and deploy a review environment.
-- Connect the approved Python microservices and secure organization-aware authorization.
-
-## Deployment
-
-The self-contained demo package includes a Dockerfile, `render.yaml`, smoke tests and a Windows launcher. See its README for run instructions.
+Use the approved API contract for field names, enums and error envelopes. Actual DRUNIX ledger status must come from the Python backend; mock responses must be visibly labeled simulated. Do not imply property title transfer, real lender payment or live REIT trades.
