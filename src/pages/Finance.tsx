@@ -40,30 +40,14 @@ export function Collateral(){
  </>;
 }
 export function Lending(){
- const {role,phase,holding,submit,submitting}=useApp();
+ const {role,phase,holding,submit,submitting,notify}=useApp();
  const [open,setOpen]=useState<'apply'|'assess'|'approve'|'reject'|'disburse'|'repay'|'release'|null>(null);
  const isLender=role==='LENDER',eligible=phaseIndex(phase)>=4;
  async function confirm(){
-  // A real lender workflow requires genuine loan and pledge IDs from Python.
-  // Never submit placeholder identifiers into production APIs.
-  if(open&&open!=='apply'){
-   await submit('/api/v1/system/status',{preview_action:open});
-   setOpen(null);
-   return;
-  }
-  const routes:Record<NonNullable<typeof open>,string>={
-   apply:route.loans,
-   assess:'/api/v1/loans/LOAN-ID/assess',
-   approve:'/api/v1/loans/LOAN-ID/approve',
-   reject:'/api/v1/loans/LOAN-ID/approve',
-   disburse:'/api/v1/loans/LOAN-ID/disburse',
-   repay:'/api/v1/loans/LOAN-ID/repayments',
-   release:'/api/v1/collateral/pledges/PLEDGE-ID/release'
-  };
-  if(!open)return;
-  await submit(routes[open],open==='repay'?{amount:sample.loan,currency:'INR'}:open==='apply'?{property_id:sample.id,requested_amount:sample.loan,currency:'INR',pledge_id:'REQUIRES_BACKEND_ID'}:open==='approve'?{decision:'APPROVE'}:open==='reject'?{decision:'REJECT'}:{});
+  notify({kind:'info',text:'Lender actions require actual loan and pledge IDs from the Python API. This screen is an illustrative review; no real loan approval, repayment or release was submitted.'});
   setOpen(null);
  }
+
  return <><SectionHeading title={isLender?'Lender Console':'Loan Applications'} description="SIMULATED LENDING WORKFLOW — no real bank approval, funds transfer or loan contract."/>
  <div className="grid gap-4 md:grid-cols-3"><Metric label="Indicative collateral" value={inr(2000000)} description="200 ANSH × ₹10,000 · illustrative"/><Metric label="Indicative loan request" value={inr(sample.loan)} description="Example from business rules"/><Metric label="Loan-to-value" value={sample.ltv+'%'} description="Configurable backend risk policy required"/></div>
  <div className="mt-5 grid gap-5 xl:grid-cols-2">
