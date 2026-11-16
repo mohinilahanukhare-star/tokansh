@@ -20,6 +20,17 @@ React 19 · TypeScript · Vite · Tailwind CSS · Radix/shadcn-style reusable UI
 
 Primary colour is deep navy **#102B4E**, action blue **#1769AA**, secondary slate blue **#607D9B**, neutral background **#F4F6F9** and white surfaces. These are TokANSH colours, **not an official Citi brand template**.
 
+## Demo sign-in and route protection
+
+The public frontend first presents `#/login`. Visitors must select one of the three approved demo roles (Admin/Issuer, Investor, Lender) and click **Enter demo workspace** before any workspace route is displayed.
+
+- Workspace routes redirect to `#/login` until a demo session is selected.
+- The selected role is held in React state and `sessionStorage` for the current browser tab only, so a refresh retains the selected demo account.
+- **Logout** and **Logout / Switch account** clear the demo session and return to the login screen; a previously opened direct dashboard URL will be gated again.
+- The header identifies the active demo role. Switching accounts uses Logout and a fresh role selection rather than an unreviewed in-app role change.
+
+**This is only client-side demonstration navigation—not authentication or a security boundary.** Never use it to protect sensitive data. Python backend authorization is still required for real users and core ledger operations.
+
 ## What's included
 
 - Role selector for **Admin/Issuer (Meera)**, **Investor (Aarav)** and **Lender**. This is **not real authentication**.
