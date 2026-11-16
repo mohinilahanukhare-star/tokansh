@@ -44,6 +44,13 @@ export function Lending(){
  const [open,setOpen]=useState<'apply'|'assess'|'approve'|'reject'|'disburse'|'repay'|'release'|null>(null);
  const isLender=role==='LENDER',eligible=phaseIndex(phase)>=4;
  async function confirm(){
+  // A real lender workflow requires genuine loan and pledge IDs from Python.
+  // Never submit placeholder identifiers into production APIs.
+  if(open&&open!=='apply'){
+   await submit('/api/v1/system/status',{preview_action:open});
+   setOpen(null);
+   return;
+  }
   const routes:Record<NonNullable<typeof open>,string>={
    apply:route.loans,
    assess:'/api/v1/loans/LOAN-ID/assess',
