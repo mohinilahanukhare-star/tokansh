@@ -1,11 +1,13 @@
-# TokANSH agent instructions
+# TokANSH frontend-only development instructions
 
-Read the architecture, wireframes and proposed Python API contract before editing.
+Repository boundary: **React UI code only**. Do not create or commit Python backend, DRUNIX chaincode, node certificates, private keys, blockchain infrastructure or deployment files for backend services.
 
-Preserve the 10-screen MVP scope and role-based navigation. Keep simulated payment, lender decision and REIT data visibly distinct from actual committed DRUNIX ledger state.
+Use React + TypeScript + Vite. Implement the approved 10-screen MVP with responsive, accessible components.
 
-Do not claim real token issuance, land title transfer, loan disbursement or live REIT trading. Do not put blockchain credentials or private keys in frontend code.
+Use a typed API client and switchable mock/real API adapters. The Python backend APIs will be supplied separately. All network requests must go to the configured backend base URL; never call blockchain peers directly from the browser.
 
-Prioritize: login, investor dashboard, property details, holdings, payment failure/retry, pledge enforcement, lender release, distributions and audit.
+Enforce role-aware UI navigation and route guards, but never confuse frontend hiding with server-side authorization. Backend owns identity, permissions and ledger state.
 
-Run tests before creating or merging a PR. Avoid editing the main branch directly.
+Respect proposed API contract: money as strings, operation statuses, idempotency and simulated/committed provenance. Clearly label synthetic REITs, payment outcomes and indicative valuations.
+
+Prioritize functional screens, forms, loading/error states and consistent navigation. Verify TypeScript build and frontend tests before merging.
