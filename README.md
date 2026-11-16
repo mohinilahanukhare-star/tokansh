@@ -1,111 +1,86 @@
-# TokANSH — React UI
+# TokANSH — Frontend UI
 
-**Unlocking Real Estate, One Ansh at a Time.** A responsive hackathon frontend for investor, asset-manager and lender experiences.
+**Unlocking Real Estate, One Ansh at a Time.**
 
-This repository is **frontend-only**. It contains no Python backend services, Hyperledger/DRUNIX network or chaincode. The backend will be provided separately.
+This is the **React frontend-only** repository for the TokANSH DRUNIX Hackathon 2026 MVP. The separate backend repository is responsible for Python FastAPI, Go DRUNIX integration, application persistence and chaincode. Do not add backend services or blockchain secrets here.
 
-## What is implemented?
+## Official product baseline
 
-| Page | Current state |
-| --- | --- |
-| Demo login / role selection | Working UI mock (not real authentication) |
-| Investor dashboard | Working synthetic charts, metrics, activity |
-| Explore properties and asset details | Working listings, search and details |
-| My portfolio (ANSH + REIT) | Working synthetic balances |
-| Trade & transfer | Working mock buy/sell, payment failure, safe retry, pledged-unit restrictions |
-| Collateral & loans | Working mock pledge request and locked balances |
-| Asset manager | Working synthetic issuance and distribution recording |
-| Lender dashboard | Working mock approve/reject, repayment, release |
-| Transactions & audit | Working event history and JSON export |
-| Intelligence (optional) | Working indicative scenario controls |
+The source of truth is the team's [baseline documentation](https://github.com/kshewani/tokansh/tree/main/docs), especially:
 
-**Data and transactions are simulated in your browser. Nothing here proves blockchain commit or real payments.** Roles are a UX demo and not a security control. The Python APIs will later provide authenticated roles, authoritative DRUNIX operation status, cash/payment simulations and institution-scoped data.
+- [UI_DESIGN_GUIDELINES.md](https://github.com/kshewani/tokansh/blob/main/docs/UI_DESIGN_GUIDELINES.md)
+- [MVP_SCOPE.md](https://github.com/kshewani/tokansh/blob/main/docs/MVP_SCOPE.md)
+- [BUSINESS_RULES.md](https://github.com/kshewani/tokansh/blob/main/docs/BUSINESS_RULES.md)
+- [API_CONTRACTS.md](https://github.com/kshewani/tokansh/blob/main/docs/API_CONTRACTS.md)
+- [DEMO_SCRIPT.md](https://github.com/kshewani/tokansh/blob/main/docs/DEMO_SCRIPT.md)
 
-## Stack
+### Frontend stack
 
-React 19, TypeScript, Vite 6, Lucide icons and responsive CSS. No server code.
+React 19 · TypeScript · Vite · Tailwind CSS · Radix/shadcn-style reusable UI primitives · React Router · TanStack Query · Recharts · Lucide icons.
 
-## Run locally
+Primary colour is deep navy **#102B4E**, action blue **#1769AA**, secondary slate blue **#607D9B**, neutral background **#F4F6F9** and white surfaces. These are TokANSH colours, **not an official Citi brand template**.
 
-Install Node.js 22+ and npm, then:
+## What's included
+
+- Role selector for **Admin/Issuer (Meera)**, **Investor (Aarav)** and **Lender**. This is **not real authentication**.
+- Role-scoped navigation with dashboard, property registry, issuance, marketplace, portfolio, transactions, collateral, lending, rental distributions, asset intelligence, audit and system status.
+- Responsive components, accessible labels, transaction review dialogs and visual status indicators.
+- Scenario selector with the baseline illustrated flow: onboarding → approval → 100,000 ANSH issuance → 500 ANSH purchase → 200 ANSH pledge (300 available) → full release (500 available).
+- Example entitlement: 500 / 100,000 × ₹10,00,000 = ₹5,000. This is **not a verified historical distribution**.
+- API transport boundary in `src/api/transport.ts`, selected response/request types in `src/api/contracts.ts`, and React Query for checking backend system status when configured.
+- A dedicated system-status page displaying dependencies independently, without assuming that API availability proves DRUNIX connectivity.
+
+## Important: no false ledger success
+
+**This public website is a UI preview, not a running DRUNIX-backed transaction platform.** The scenario selector displays read-only hypothetical stages; it does not simulate authoritative ownership or claim a DRUNIX commitment. No real investment, bank transfer, loan, property registration or ledger transaction can be performed until the backend is connected.
+
+A core ANSH action must not change displayed verified ownership before the Python backend confirms the real DRUNIX commit and the resulting holdings are queried. The frontend does not create fake transaction identifiers. Backend status `SUBMITTED`, `UNKNOWN` or `RECONCILIATION_REQUIRED` must not be painted as success.
+
+In preview mode, forms allow reviewing request fields; confirmation explains that a backend is required and changes **no** ledger state.
+
+## Run
+
+Install Node.js 22+ and run:
 
 ```powershell
 git clone https://github.com/mohinilahanukhare-star/tokansh.git
 cd tokansh
-git checkout feature/tokansh-react-ui
 npm.cmd install
 npm.cmd run dev
 ```
 
-Open http://localhost:5173.
-
-To build:
-
-```powershell
-npm.cmd run build
-npm.cmd run preview
-```
-
-To run mock-engine tests:
+Open http://localhost:5173. To verify:
 
 ```powershell
 npm.cmd test
+npm.cmd run build
 ```
 
-> In PowerShell, `npm.cmd` avoids the `npm.ps1` execution-policy issue.
+PowerShell users can use `npm.cmd` to avoid execution-policy errors.
 
-## Frontend API integration
+## API integration
 
-Create a local file `.env.local` (do not commit):
+Create `.env.local` from `.env.example`:
 
 ```env
-VITE_API_MODE=mock
-VITE_API_BASE_URL=http://localhost:8000/api/v1
+VITE_API_MODE=preview
+VITE_API_BASE_URL=
 ```
 
-All screens currently run from the mock adapter. The centralized API transport is in `src/api/client.ts`; when the separate Python services are ready, integrate the approved v2 endpoint shapes there and in domain-specific hooks, then opt into `VITE_API_MODE=real`. Merely toggling the flag **does not** activate real integration today: the UI warns that requests still use the mock engine.
+When the Python API is available, configure its public HTTPS base URL and `VITE_API_MODE=real`. The system-status query then calls `GET /api/v1/system/status`. Domain API write contracts have been scaffolded but **full read and write integration is not finished**: endpoint field shapes, authenticated session handling, ledger polling and error reconciliation must be verified against the actual running backend. Changing the environment variable alone will not make a real DRUNIX workflow work.
 
-The browser must never call DRUNIX peers or hold blockchain certificates, keys or service secrets. Real write actions must be authorized by Python and show processing/COMMITTED/REJECTED states based on its operation API. Never infer ledger finality from HTTP 202 or a payment-success screen.
+All API calls should be proxied through Python REST; the browser must never hold DRUNIX peer credentials, private keys or connection certificates.
 
-## Demo account roles
+## GitHub Pages
 
-Select a pre-seeded Investor, Asset Manager, Lender or Admin profile at the sign-in screen. Switching accounts is intentionally a front-end-only experience.
+The free public preview is hosted at:
 
-The demo engine uses localStorage to persist synthetic transactions across refreshes. To return to seed data, clear the site's localStorage key `tokansh-demo-v2`. Data is not shared across browsers and is not a production database.
+**https://mohinilahanukhare-star.github.io/tokansh/**
 
-## MVP demo sequence
+A push to `main` runs GitHub Actions to test, build and publish the Vite site with the `/tokansh/` base path. HashRouter allows direct navigation without server-side SPA rewrites. The public deployment uses preview mode.
 
-1. Open Investor dashboard, TechPark One and portfolio.
-2. Attempt a buy with "Simulate payment failure" enabled. Verify balance unchanged.
-3. Retry the failed buy once; confirm only one synthetic ownership change.
-4. Request a pledge; switch to Lender and approve.
-5. Return to Investor and attempt to sell more than the available unpledged ANSH units. Verify that the action is blocked.
-6. Switch to Lender, confirm simulated repayment, authorize release.
-7. Switch to Asset Manager and record a distribution.
-8. Review Transactions & Audit for lifecycle events.
-9. Explore optional valuation scenarios.
+## Verification
 
-## Deploy on Vercel
+`tests/scenario.test.mjs` checks baseline values and ensures preview audit records never contain fabricated DRUNIX transaction IDs or commitment evidence.
 
-Import `mohinilahanukhare-star/tokansh` into Vercel:
-- Framework: **Vite**
-- Root directory: **repository root**
-- Build command: `npm run build`
-- Output directory: `dist`
-- Set `VITE_API_MODE=mock` until Python backend integration is complete.
-
-`vercel.json` handles SPA navigation fallback. Deployment is not yet connected or performed.
-
-## Frontend boundaries
-
-Only frontend code and frontend documentation belong here. No Python microservices, Go chaincode, DRUNIX peers, database credentials or actual investment processing. For real functionality, backend owners must implement the validated API contract.
-
-## Free public deployment (GitHub Pages)
-
-This public frontend repository can be hosted on GitHub Pages at `https://mohinilahanukhare-star.github.io/tokansh/` without running a Python server.
-
-**One-time repository owner setup:** open [Settings → Pages](https://github.com/mohinilahanukhare-star/tokansh/settings/pages), then under **Build and deployment → Source** select **GitHub Actions**. This GitHub setting cannot be enabled from the frontend source repository alone.
-
-After choosing GitHub Actions, visit [Actions](https://github.com/mohinilahanukhare-star/tokansh/actions/workflows/deploy-pages.yml), select **Run workflow** on the `main` branch or rerun the previous failed job. The workflow installs dependencies, runs seven mock-engine tests, builds Vite with the `/tokansh/` base path and publishes `dist` through the official GitHub Pages actions.
-
-The page is a public **synthetic hackathon UI**: account switching, financial figures, mock payments and localStorage-based trade/pledge simulations are not authenticated bank or DRUNIX operations. Never enter real customer data or credentials into the demo.
+These are unit tests and build checks, not an end-to-end browser audit. The final DRUNIX demo must pass the team's backend/business-rule integration acceptance criteria.

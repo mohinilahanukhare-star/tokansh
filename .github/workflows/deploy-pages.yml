@@ -29,11 +29,11 @@ jobs:
           node-version: '22'
       - name: Install frontend dependencies
         run: npm install --no-audit --no-fund
-      - name: Run mock engine tests
+      - name: Run UI scenario tests
         run: npm test
       - name: Build Vite app with the GitHub Pages base path
         env:
-          VITE_API_MODE: mock
+          VITE_API_MODE: preview
         run: npm run build -- --base=/tokansh/
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
