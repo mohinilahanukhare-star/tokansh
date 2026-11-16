@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {
   initialState, availableUnits, pledgedUnits, placeTrade,
   retryTrade, requestPledge, decidePledge, repayPledge,
-  releasePledge, issueAnsh, recordDistribution, applyShock
+  releasePledge, issueAnsh, recordDistribution, applyShock, transferAnsh
 } from '../src/mock/engine.ts';
 
 test('seeded ANSH balances distinguish owned from locked', () => {
@@ -52,4 +52,13 @@ test('indicative scenario does not change unit ownership', () => {
   const b=applyShock(a,-12);
   assert.equal(b.ownedUnits,a.ownedUnits);
   assert.equal(b.valuationShock,-12);
+});
+
+test('direct transfer reduces sender balance and respects pledged restrictions',()=>{
+  const s=initialState();
+  assert.throws(()=>transferAnsh(s,4241,'usr_investor_02'),/Transfer blocked/);
+  const transferred=transferAnsh(s,50,'usr_investor_02');
+  assert.equal(transferred.ownedUnits,5190);
+  assert.equal(transferred.trades[0].payment,'NOT_REQUIRED');
+  assert.equal(transferred.events[0].kind,'TRANSFER');
 });
