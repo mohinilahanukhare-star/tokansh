@@ -6,9 +6,10 @@ import {route} from '../api/contracts';
 import type {SystemStatus} from '../api/contracts';
 import type {Role,Phase} from '../demo/scenario';
 import {scenarioProperty,scenarioHoldings,scenarioEvents,scenarioEntitlement} from '../demo/scenario';
+import {readDemoSession,writeDemoSession,clearDemoSession} from '../demo/session';
 type Message={kind:'error'|'info'|'submitted';text:string}|null;
 type Context={
- role:Role;setRole:(v:Role)=>void;phase:Phase;setPhase:(v:Phase)=>void;message:Message;notify:(v:Message)=>void;
+ role:Role;demoSession:Role|null;login:(v:Role)=>void;logout:()=>void;phase:Phase;setPhase:(v:Phase)=>void;message:Message;notify:(v:Message)=>void;
  backendReady:boolean;systemStatus:SystemStatus|null;loadingStatus:boolean;
  property:ReturnType<typeof scenarioProperty>;holding:ReturnType<typeof scenarioHoldings>;
  events:ReturnType<typeof scenarioEvents>;entitlement:ReturnType<typeof scenarioEntitlement>;
@@ -16,7 +17,8 @@ type Context={
 };
 const ctx=createContext<Context|null>(null);
 export function AppProvider({children}:{children:ReactNode}){
- const [role,setRoleState]=useState<Role>('ISSUER');
+ const [demoSession,setDemoSession]=useState<Role|null>(()=>readDemoSession());
+ const [role,setRoleState]=useState<Role>(()=>readDemoSession()||'ISSUER');
  const [phase,setPhase]=useState<Phase>('ONBOARDING');
  const [message,notify]=useState<Message>(null);
  const queryClient=useQueryClient();
@@ -30,7 +32,8 @@ export function AppProvider({children}:{children:ReactNode}){
   },
   onError:(error)=>notify({kind:'error',text:error instanceof Error?error.message:'The request could not be completed'})
  });
- const setRole=(value:Role)=>{setRoleState(value);notify(null);};
+ const login=(value:Role)=>{writeDemoSession(value);setRoleState(value);setDemoSession(value);setPhase('ONBOARDING');notify(null);};
+ const logout=()=>{clearDemoSession();setDemoSession(null);setRoleState('ISSUER');setPhase('ONBOARDING');notify(null);queryClient.clear();};
  const property=useMemo(()=>scenarioProperty(phase),[phase]);
  const holding=useMemo(()=>scenarioHoldings(phase),[phase]);
  const events=useMemo(()=>scenarioEvents(phase),[phase]);
@@ -39,6 +42,6 @@ export function AppProvider({children}:{children:ReactNode}){
   if(!realBackendConfigured){notify({kind:'info',text:'UI preview only. This operation requires the Python API and verified DRUNIX connectivity; no ledger state was changed.'});return;}
   await mutation.mutateAsync({path,body}).catch(()=>undefined);
  }
- return <ctx.Provider value={{role,setRole,phase,setPhase,message,notify,backendReady:realBackendConfigured&&health.isSuccess,systemStatus:health.data||null,loadingStatus:health.isFetching,property,holding,events,entitlement,submit,submitting:mutation.isPending}}>{children}</ctx.Provider>;
+ return <ctx.Provider value={{role,demoSession,login,logout,phase,setPhase,message,notify,backendReady:realBackendConfigured&&health.isSuccess,systemStatus:health.data||null,loadingStatus:health.isFetching,property,holding,events,entitlement,submit,submitting:mutation.isPending}}>{children}</ctx.Provider>;
 }
 export function useApp(){const value=useContext(ctx);if(!value)throw new Error('AppProvider missing');return value;}
