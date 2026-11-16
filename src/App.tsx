@@ -12,7 +12,7 @@ import {
   ASSETS, DEMO_ACCOUNTS, INR, applyShock, availableUnits, decidePledge,
   effectivePrice, getDemoState, initialState, issueAnsh, placeTrade,
   pledgedUnits, recordDistribution, releasePledge, repayPledge,
-  requestPledge, retryTrade, saveDemoState, timeLabel
+  requestPledge, retryTrade, saveDemoState, timeLabel, transferAnsh, withEvent
 } from './mock/engine';
 import type { Asset, DemoState, Role } from './mock/engine';
 import { API_MODE } from './api/client';
@@ -94,6 +94,8 @@ export default function App(){
   const [filter,setFilter]=useState('');
   const [side,setSide]=useState<'BUY'|'SELL'>('BUY');
   const [units,setUnits]=useState(25);
+  const [recipient,setRecipient]=useState('usr_investor_02');
+  const [transferUnits,setTransferUnits]=useState(10);
   const [failPayment,setFailPayment]=useState(true);
   const [pledgeInput,setPledgeInput]=useState(100);
   const [issuanceInput,setIssuanceInput]=useState(2000);
@@ -122,7 +124,9 @@ export default function App(){
   }
   function doTrade(){
     try{const updated=placeTrade(state,side,units,failPayment);setState(updated);setNotice({kind:failPayment?'info':'success',message:failPayment?'Simulated payment failed. Units were not changed; use Retry in the trade history.':'Demo settlement recorded and balance updated.'});}
-    catch(e){setNotice({kind:'error',message:e instanceof Error?e.message:'Trade was rejected'});}
+    catch(e){const reason=e instanceof Error?e.message:'Trade was rejected';
+      if(reason.includes('Transfer blocked')){const next=structuredClone(state);withEvent(next,'TRANSFER','Rejected attempted ANSH sale: '+reason,'REJECTED','Investor');setState(next);}
+      setNotice({kind:'error',message:reason});}
   }
   const tabs=role?menus[role]:[];
   const allowedPage=role?(tabs.some(x=>x.id===page)||page==='property'):false;
@@ -196,6 +200,7 @@ export default function App(){
           <div className="steps">{[['1','Validate eligibility','Confirm holdings and permissions'],['2','Payment outcome','Failure or confirmation'],['3','Submit ledger operation','DRUNIX transaction pending'],['4','Confirm finality','COMMITTED or REJECTED'],['5','Refresh holdings','Only after authoritative commit']].map(([n,t,desc])=><div className="step" key={n}><div className="step-num">{n}</div><div><strong>{t}</strong><small>{desc}</small></div></div>)}</div>
           <div className="notice-box"><Info size={17}/> The mock action updates a local synthetic registry. A real payment response is not proof of ledger commitment.</div>
         </Panel></div>
+        <Panel><h3>Direct ANSH transfer</h3><p className="panel-intro">Send available units to another synthetic investor. Pledged units remain locked.</p><div className="transfer-grid"><div className="field"><label htmlFor="transfer-recipient">Recipient demo account</label><input id="transfer-recipient" value={recipient} onChange={e=>setRecipient(e.target.value)} placeholder="usr_investor_02"/></div><div className="field"><label htmlFor="transfer-count">Quantity</label><input id="transfer-count" type="number" min={1} step={1} max={available} value={transferUnits} onChange={e=>setTransferUnits(Number(e.target.value))}/></div><Btn onClick={()=>changeState(s=>transferAnsh(s,transferUnits,recipient),'Synthetic transfer completed; units removed from sender holdings.')}>Transfer ANSH <ArrowRight size={16}/></Btn></div><p className="footnote">This demo does not provision a separate receiving wallet or create a real blockchain transfer.</p></Panel>
         <Panel><div className="panel-heading"><div><h3>Trade history</h3><p>Use Retry on failed demo payments</p></div></div><div className="table-wrap"><table><thead><tr><th>Reference</th><th>Type</th><th>Units</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead><tbody>{state.trades.map(t=><tr key={t.id}><td className="mono">{t.id}</td><td>{t.side}</td><td>{t.units}</td><td>{INR(t.amount)}</td><td><Status value={t.status}/></td><td>{t.status==='PAYMENT_FAILED'?<button className="link-button" onClick={()=>changeState(s=>retryTrade(s,t.id),'Simulated payment retry succeeded; synthetic balance updated exactly once.')}>Retry <RefreshCw size={14}/></button>:<span className="muted">—</span>}</td></tr>)}</tbody></table></div></Panel>
       </>}
       {visible==='collateral'&&<><Heading title="Collateral & Loans" desc="Unlock potential liquidity while preserving transfer restrictions and auditable pledge lifecycles."/>
